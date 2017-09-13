@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+    content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>VR-Demo</title>
+    <script src="./lib/aframe.js"></script>
+</head>
+<body>
+    <script>
+        let Room = 'bedroom',
+            isVrMode = false;
+        AFRAME.registerComponent('cursor-listener', {
+            schema: {
+                info: {defualt: ""}
+            },
+            init: function () {
+                const data = this.data,
+                        info = data.info.split(',');
+                const textDoms= [];
+                for (let i = 0, len = info.length; i < len; i++ ) {
+                    const thisTextDom = document.getElementById('text-' + (i + 1));
+                    textDoms.push( thisTextDom );
+                }
+                this.el.addEventListener('mouseenter', function (evt) {
+                    if( Room === 'bedroom' ){
+                        for ( let i = 0, len = textDoms.length; i < len; i++ ) {
+                            const thisTextDom = textDoms[i];
+                            thisTextDom.setAttribute( 'value', info[i]);
+                            thisTextDom.emit('show');
+                        }
+                    }
+                });
+                this.el.addEventListener('mouseleave', function (evt) {
+                    if( Room === 'bedroom' ){
+                        for ( let i = 0, len = textDoms.length; i < len; i++ ) {
+                            textDoms[i].emit('hide');
+                        }
+                    }   
+                })
+            }
+        });
+
+        AFRAME.registerComponent('watching', {
+            init: function(){
+                const TV = document.getElementById('TV');
+                this.el.addEventListener('mouseenter', function(evt){
+                    if( Room === 'bedroom' ){
+                        TV.emit('show');
+                    }
+                });
+                this.el.addEventListener('mouseleave', function (evt) {
+                    if( Room === 'bedroom' ){
+                        TV.emit('hide');
+                    }
+                });
+            }
+        });
+
+        AFRAME.registerComponent('hover', {
+            schema: {
+                room: {defualt: "bedroom"},
+                exitId: {defualt: "exit-1"}
+            },
+            init: function(){
+                const data = this.data,
+                        exit = document.getElementById(data.exitId),
+                        _room = data.room;
+                this.el.addEventListener('mouseenter', function(evt){
+                    if ( _room === Room && !isVrMode) {
+                        exit.emit('hover');
+                    }
+                });
+                this.el.addEventListener('mouseleave', function(evt){
+                    if ( _room === Room && !isVrMode ) {
+                        exit.emit('leave');
+                    }
+                });
+            }
+        });
+
+        AFRAME.registerComponent('transfer', {
+            schema: {
+                room: {defualt: "bedroom"},
+                tRoom: {defualt: "bedroom"},
+                exitId: {defualt: "exit-1"},
+                tExitId: {defualt: "exit-2"}
+            },
+            init: function(){
+                const data = this.data,
+                        sky = document.getElementById('sky'),
+                        exit = document.getElementById(data.exitId),
+                        _room = data.room,
+                        _target = data.tRoom,
+                        _tExit = document.getElementById(data.tExitId);
+                this.el.addEventListener('mousedown', function(evt){
+                    if ( Room !== _target && !isVrMode ) {
+                        Room = _target;
+                        exit.emit('hide');
+                        _tExit.emit('show');
+                        sky.setAttribute( 'src', '#' + _target);
+                        
+                    }
+                });
+            }
+        });
+    </script>
+
+    <a-scene id="scene">
+        <a-assets>
+            <img id="bedroom" src="./assets/bedroom.jpg">
+            <img id="bathroom" src="./assets/bathroom.jpg">
+        </a-assets>
+        <a-sky id="sky" src="#bedroom" radius="20"></a-sky>
+
+        <!-- 电视动画 -->
+        <a-plane watching width="4.02" height="2.4" position="2.02 2.2 -5" rotation="0 -40 0" color="#fff" opacity="0">
+            <a-plane width="3.5" height="2" position="0 0 -0.1" color="#282828" opacity="0">
+                    <a-animation begin="show" end="hide" dur="500" attribute="opacity" from="0" to="1"></a-animation>
+                    <a-animation begin="hide" end="show" dur="1000" attribute="opacity" to="0"></a-animation>
+            
+            
+                <a-text value="Hello World" width="8" align="center" color="#fff" position="0 0 0.01" opacity="0">
+                        <a-animation begin="show" end="hide" delay="500" dur="1000" attribute="opacity" from="0" to="1"></a-animation>
+                        <a-animation begin="animationend" end="hide" delay="1000" dur="500" attribute="opacity" to="0"></a-animation>
+                        <a-animation begin="hide" end="show" dur="1000" attribute="opacity" to="0"></a-animation>
+                        <a-plane position="-1 0.5 0" color="#f56" opacity="0">
+                            <a-animation begin="show" end="hide" delay="2000" dur="1000" attribute="opacity" from="0" to="1"></a-animation>
+                            <a-animation begin="hide" end="show" dur="1000" attribute="opacity" to="0"></a-animation>
+                            <a-text value="Movie" color="#fff" align="center" opacity="0">
+                                <a-animation begin="show" end="hide" delay="2000" dur="1000" attribute="opacity" from="0" to="1"></a-animation>
+                                <a-animation begin="hide" end="show" dur="1000" attribute="opacity" to="0"></a-animation>
+                                <a-plane position="1 0 0" color="#00C5CD" opacity="0">
+                                        <a-animation begin="show" end="hide" delay="2000" dur="1500" attribute="opacity" from="0" to="1"></a-animation>
+                                        <a-animation begin="hide" end="show" dur="1000" attribute="opacity" to="0"></a-animation>
+                                        <a-text value="Music" color="#fff" align="center" opacity="0">
+                                            <a-animation begin="show" end="hide" delay="2500" dur="600" attribute="opacity" from="0" to="1"></a-animation>
+                                            <a-animation begin="hide" end="show" dur="1000" attribute="opacity" to="0"></a-animation>
+                                            <a-plane position="0 -1 0" width="3" color="#1E90FF" opacity="0">
+                                                    <a-animation begin="show" end="hide" delay="2500" dur="800" attribute="opacity" from="0" to="1"></a-animation>
+                                                    <a-animation begin="hide" end="show" dur="1000" attribute="opacity" to="0"></a-animation>
+                                                    <a-text id="TV" value="Photo Album" color="#fff" align="center" opacity="0">
+                                                        <a-animation begin="show" end="hide" delay="2500" dur="1000" attribute="opacity" from="0" to="1"></a-animation>
+                                                        <a-animation begin="hide" end="show" dur="1000" attribute="opacity" to="0"></a-animation>
+                                                    </a-text>
+                                            </a-plane>
+                                        </a-text>
+                                </a-plane>
+                            </a-text>
+                        </a-plane>
+                </a-text>
+
+            </a-plane>
+        </a-plane>
+
+        <!-- 婴儿床触发 -->
+        <a-box cursor-listener="info: Baby, Age: 1, Sex: M, Name: Septem;" position="-8.25 -3 -7.5" width="5" height="2" rotation="90 90 0" color="#fff" opacity="0"></a-box>
+
+         <!-- 时钟触发 -->
+        <a-box cursor-listener="info: Clock, $5, 14:56 ;" position="-0.75 -12 15" width="2.5" height="1.2" color="#fff" opacity="0"></a-box>
+
+        <!-- Exit -->
+        <a-plane hover="room: bedroom; exitId: exit-1;" transfer="room: bedroom; tRoom: bathroom; exitId: exit-1; tExitId: exit-2;" position="4.5 0 15" width="3" rotation="0 180 0" color="#fff" opacity="0">
+            <a-plane position="0 0 -0.1" width="3" color="#00C5CD" opacity="0.5">
+                <a-animation begin="hover" end="hide" dur="1000" attribute="opacity" from="0.5" to="1"></a-animation>
+                <a-animation begin="leave" end="hide" dur="1000" attribute="opacity" from="1" to="0.5"></a-animation>
+                <a-animation begin="show" end="hide" dur="0" attribute="opacity" to="0.5"></a-animation>
+                <a-animation begin="hide" end="show" dur="0" attribute="opacity" to="0"></a-animation>
+                <a-text id='exit-1' value="exit" align="center" width="16" color="#fff" opacity="0.5">
+                    <a-animation begin="hover" end="hide" dur="1000" attribute="opacity" from="0.5" to="1"></a-animation>
+                    <a-animation begin="leave" end="hide" dur="1000" attribute="opacity" from ="1" to="0.5"></a-animation>
+                    <a-animation begin="show" end="hide" dur="0" attribute="opacity" to="0.5"></a-animation>
+                    <a-animation begin="hide" end="show" dur="0" attribute="opacity" to="0"></a-animation>
+                </a-text>
+            </a-plane>   
+        </a-plane>
+
+        <!-- Exit -->
+        <a-plane hover="room: bathroom; exitId: exit-2;" transfer="room: bathroom; tRoom: bedroom; exitId: exit-2; tExitId: exit-1;" position="0 0 -12" width="2.5" rotation="0 0 0" color="#fff" opacity="0">
+            <a-plane position="0 0 -0.1" width="2.5" color="#00C5CD" opacity="0">
+                <a-animation begin="hover" end="hide" dur="1000" attribute="opacity" from="0.5" to="1"></a-animation>
+                <a-animation begin="leave" end="hide" dur="1000" attribute="opacity" from="1" to="0.5"></a-animation>
+                <a-animation begin="show" end="hide" dur="0" attribute="opacity" to="0.5"></a-animation>
+                <a-animation begin="hide" end="show" dur="0" attribute="opacity" to="0"></a-animation>
+                <a-text id='exit-2' value="exit" align="center" width="15" color="#fff" opacity="0">
+                    <a-animation begin="hover" end="hide" dur="1000" attribute="opacity" from="0.5" to="1"></a-animation>
+                    <a-animation begin="leave" end="hide" dur="1000" attribute="opacity" from ="1" to="0.5"></a-animation>
+                    <a-animation begin="show" end="hide" dur="0" attribute="opacity" to="0.5"></a-animation>
+                    <a-animation begin="hide" end="show" dur="0" attribute="opacity" to="0"></a-animation>
+                </a-text>
+            </a-plane>   
+        </a-plane>
+
+
+        <a-entity camera look-controls>
+            <a-entity cursor="fuse: true; fuseTimeout: 1000;"
+                        position="0 0 -1.5"
+                        geometry="primitive: ring; radiusInner: 0.01; radiusOuter: 0.02;"
+                        material="color: #000; opacity: 0;">
+                        <a-entity 
+                            geometry="primitive: plane; width: 1; height: 1;"
+                            material="color: #fff; opacity: 0;"
+                            position="0 0 0.5">
+
+                            <a-entity id = "focus"
+                                geometry="primitive: ring; radiusInner: 0.04; radiusOuter: 0.06;"
+                                material="color: #00C5CD; shader: flat; opacity: 0">
+                                <a-animation begin="show" end="hide" delay="500" dur="3000" attribute="material.opacity" from="0" to="1"></a-animation>
+                                <a-animation begin="show" end="hide" delay="500" dur="3000" attribute="geometry.radiusInner" from="0.04" to="0.001"></a-animation>
+                                <a-animation begin="show" end="hide" delay="500" dur="3000" attribute="geometry.radiusOuter" from="0.06" to="0.01"></a-animation>
+                                <a-animation begin="hide" end="show" delay="0" dur="1000" attribute="material.opacity" to="0"></a-animation>
+                                
+                                <a-entity
+                                    geometry="primitive: ring; radiusInner: 0.02; radiusOuter: 0.025;"
+                                    material="color: #00C5CD; shader: flat; opacity: 0;">
+                                    <a-animation begin="show" end="hide" delay="300" dur="3000" attribute="material.opacity" from="0" to="0.5"></a-animation>
+                                    <a-animation begin="show" end="hide" delay="300" dur="3000" attribute="geometry.radiusInner" from="0.02" to="0"></a-animation>
+                                    <a-animation begin="show" end="hide" delay="300" dur="3000" attribute="geometry.radiusOuter" from="0.025" to="0.01"></a-animation>
+                                    <a-animation begin="hide" end="show" delay="0" dur="1000" attribute="material.opacity" to="0"></a-animation>
+
+                                    
+
+                                    <a-entity line="start: 0, 0, 0; end: -0.1 0.1 0; color: #00C5CD; opacity: 0;"
+                                                line__1="start: -0.1 0.1 0; end: -0.3 0.1 0; color: #00C5CD; opacity: 0;">
+                                            <a-animation begin="show" end="hide" delay="3100" dur="1000" attribute="line.opacity" from="0" to="0.5"></a-animation>
+                                            <a-animation begin="show" end="hide" delay="3200" dur="1000" attribute="line__1.opacity" from="0" to="0.5"></a-animation>
+                                            <a-animation begin="hide" end="show" delay="0" dur="1000" attribute="line.opacity" to="0"></a-animation>
+                                            <a-animation begin="hide" end="show" delay="0" dur="1000" attribute="line__1.opacity" to="0"></a-animation>
+                                            <a-text id="text-1" value="1" width="0.8" align="right" color="#fff" position="-0.3 0.1 0" opacity="0">
+                                                <a-animation begin="show" end="hide" delay="3700" dur="1000" attribute="opacity" from="0" to="1"></a-animation>
+                                                <a-animation begin="hide" end="show" delay="0" dur="1000" attribute="opacity" to="0"></a-animation>
+                                            </a-text>
+                                    </a-entity>
+
+                                    <a-entity line="start: 0, 0, 0; end: -0.1 -0.1 0; color: #00C5CD; opacity: 0;"
+                                                line__1="start: -0.1 -0.1 0; end: -0.2 -0.1 0; color: #00C5CD; opacity: 0;">
+                                            <a-animation begin="show" end="hide" delay="2900" dur="1000" attribute="line.opacity" from="0" to="0.5"></a-animation>
+                                            <a-animation begin="show" end="hide" delay="3000" dur="1000" attribute="line__1.opacity" from="0" to="0.5"></a-animation>
+                                            <a-animation begin="hide" end="show" delay="0" dur="1000" attribute="line.opacity" to="0"></a-animation>
+                                            <a-animation begin="hide" end="show" delay="0" dur="1000" attribute="line__1.opacity" to="0"></a-animation>
+                                            <a-text id="text-2" value="2" width="0.8" align="right" color="#fff" position="-0.2 -0.1 0" opacity="0">
+                                                <a-animation begin="show" end="hide" delay="3700" dur="1000" attribute="opacity" from="0" to="1"></a-animation>
+                                                <a-animation begin="hide" end="show" delay="0" dur="1000" attribute="opacity" to="0"></a-animation>
+                                            </a-text>
+                                    </a-entity>
+
+                                    <a-entity line="start: 0, 0, 0; end: 0.1 0.15 0; color: #00C5CD; opacity: 0;"
+                                                line__1="start: 0.1 0.15 0; end: 0.2 0.15 0; color: #00C5CD; opacity: 0;">
+                                            <a-animation begin="show" end="hide" delay="3300" dur="1000" attribute="line.opacity" from="0" to="0.5"></a-animation>
+                                            <a-animation begin="show" end="hide" delay="3400" dur="1000" attribute="line__1.opacity" from="0" to="0.5"></a-animation>
+                                            <a-animation begin="hide" end="show" delay="0" dur="1000" attribute="line.opacity" to="0"></a-animation>
+                                            <a-animation begin="hide" end="show" delay="0" dur="1000" attribute="line__1.opacity" to="0"></a-animation>
+                                            <a-text id="text-3" value="3" width="0.8" align="left" color="#fff" position="0.2 0.15 0" opacity="0">
+                                                <a-animation begin="show" end="hide" delay="4100" dur="1000" attribute="opacity" from="0" to="1"></a-animation>
+                                                <a-animation begin="hide" end="show" delay="0" dur="1000" attribute="opacity" to="0"></a-animation>
+                                            </a-text>
+                                    </a-entity>
+
+
+                                    <a-entity line="start: 0, 0, 0; end: 0.2 0 0; color: #00C5CD; opacity: 0;">
+                                            <a-animation begin="show" end="hide" delay="3200" dur="1000" attribute="line.opacity" from="0" to="0.5"></a-animation>
+                                            <a-animation begin="hide" end="show" delay="0" dur="1000" attribute="line.opacity" to="0"></a-animation>
+                                            <a-text id="text-4" value="4" width="0.8" align="left" color="#fff" position="0.2 0 0" opacity="0">
+                                                <a-animation begin="show" end="hide" delay="3700" dur="1000" attribute="opacity" from="0" to="1"></a-animation>
+                                                <a-animation begin="hide" end="show" delay="0" dur="1000" attribute="opacity" to="0"></a-animation>
+                                            </a-text>
+                                    </a-entity>
+
+                                    
+
+                                    <a-entity line="start: 0, 0, 0; end: 0.1 -0.1 0; color: #00C5CD; opacity: 0;"
+                                                line__1="start: 0.1 -0.1 0; end: 0.2 -0.1 0; color: #00C5CD; opacity: 0;">
+                                            <a-animation begin="show" end="hide" delay="3000" dur="1000" attribute="line.opacity" from="0" to="0.5"></a-animation>
+                                            <a-animation begin="show" end="hide" delay="3100" dur="1000" attribute="line__1.opacity" from="0" to="0.5"></a-animation>
+                                            <a-animation begin="hide" end="show" delay="0" dur="1000" attribute="line.opacity" to="0"></a-animation>
+                                            <a-animation begin="hide" end="show" delay="0" dur="1000" attribute="line__1.opacity" to="0"></a-animation>
+                                            <a-text id="text-5" value="5" width="0.8" align="left" color="#fff" position="0.2 -0.1 0" opacity="0">
+                                                <a-animation begin="show" end="hide" delay="3600" dur="1000" attribute="opacity" from="0" to="1"></a-animation>
+                                                <a-animation begin="hide" end="show" delay="0" dur="1000" attribute="opacity" to="0"></a-animation>
+                                            </a-text>
+                                    </a-entity>   
+
+                                </a-entity>
+                            </a-entity>
+
+                            
+                        </a-entity>
+            </a-entity>
+        </a-entity>
+    </a-scene>
+
+    <script>
+        window.onload = function(){
+
+            
+
+            const scene = document.querySelector('#scene');
+            scene.addEventListener('loaded', function(evt){  
+            });       
+            scene.addEventListener('enter-vr', function(evt){
+                const exit_1 = document.getElementById('exit-1'),
+                        exit_2 = document.getElementById('exit-2');
+                isVrMode = true;
+                exit_1.emit('hide');
+                exit_2.emit('hide');
+            });
+            scene.addEventListener('exit-vr', function(evt){   
+                const exit_1 = document.getElementById('exit-1'),
+                        exit_2 = document.getElementById('exit-2');
+                isVrMode = false;
+                if ( Room === 'bedroom' ) {
+                    exit_1.emit('show');
+                } else {
+                    exit_2.emit('show');
+                }
+            });
+
+        }
+    </script>
+
+</body>
+</html>
