@@ -2,647 +2,323 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+    <meta name="viewport"
+    content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>AR-Demo</title>
-    <style>
-        body{
-            margin: 0;
-            padding: 0;
-        }
-        body{
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background-color: #000;
-        }
-        #canvas-hide{
-            position: absolute;
-            left: 0;
-            top: 0;
-            display: none;
-        }
-        .renderer{
-            position: absolute;
-        }
-        #canvas-1{
-            transform: scale(0.5, 0.5) rotate(0deg);
-            z-index: 99;
-        }
-        #canvas-2{
-            transform: scale(0.5, 0.5) rotate(-90deg);
-        }
-        #canvas-3{
-            transform: scale(0.5, 0.5) rotate(90deg);
-        }
-        #canvas-4{
-            transform: scale(0.5, 0.5) rotate(180deg);
-        }
-    </style>
+    <title>VR-Demo</title>
+    <script src="./lib/aframe.js"></script>
 </head>
 <body>
-    <canvas id="canvas-hide" width="500" height="500"></canvas>
+    <script>
+        let Room = 'bedroom',
+            isVrMode = false;
+        AFRAME.registerComponent('cursor-listener', {
+            schema: {
+                info: {defualt: ""}
+            },
+            init: function () {
+                const data = this.data,
+                        info = data.info.split(',');
+                const textDoms= [];
+                for (let i = 0, len = info.length; i < len; i++ ) {
+                    const thisTextDom = document.getElementById('text-' + (i + 1));
+                    textDoms.push( thisTextDom );
+                }
+                this.el.addEventListener('mouseenter', function (evt) {
+                    if( Room === 'bedroom' ){
+                        for ( let i = 0, len = textDoms.length; i < len; i++ ) {
+                            const thisTextDom = textDoms[i];
+                            thisTextDom.setAttribute( 'value', info[i]);
+                            thisTextDom.emit('show');
+                        }
+                    }
+                });
+                this.el.addEventListener('mouseleave', function (evt) {
+                    if( Room === 'bedroom' ){
+                        for ( let i = 0, len = textDoms.length; i < len; i++ ) {
+                            textDoms[i].emit('hide');
+                        }
+                    }   
+                })
+            }
+        });
 
-    <canvas id="canvas-1" class="renderer"></canvas>
-    <canvas id="canvas-2" class="renderer"></canvas>
-    <canvas id="canvas-3" class="renderer"></canvas>
-    <canvas id="canvas-4" class="renderer"></canvas>
+        AFRAME.registerComponent('watching', {
+            init: function(){
+                const TV = document.getElementById('TV');
+                this.el.addEventListener('mouseenter', function(evt){
+                    if( Room === 'bedroom' ){
+                        TV.emit('show');
+                    }
+                });
+                this.el.addEventListener('mouseleave', function (evt) {
+                    if( Room === 'bedroom' ){
+                        TV.emit('hide');
+                    }
+                });
+            }
+        });
 
-    <script src="lib/three.min.js"></script>
+        AFRAME.registerComponent('hover', {
+            schema: {
+                room: {defualt: "bedroom"},
+                exitId: {defualt: "exit-1"}
+            },
+            init: function(){
+                const data = this.data,
+                        exit = document.getElementById(data.exitId),
+                        _room = data.room;
+                this.el.addEventListener('mouseenter', function(evt){
+                    if ( _room === Room && !isVrMode) {
+                        exit.emit('hover');
+                    }
+                });
+                this.el.addEventListener('mouseleave', function(evt){
+                    if ( _room === Room && !isVrMode ) {
+                        exit.emit('leave');
+                    }
+                });
+            }
+        });
+
+        AFRAME.registerComponent('transfer', {
+            schema: {
+                room: {defualt: "bedroom"},
+                tRoom: {defualt: "bedroom"},
+                exitId: {defualt: "exit-1"},
+                tExitId: {defualt: "exit-2"}
+            },
+            init: function(){
+                const data = this.data,
+                        sky = document.getElementById('sky'),
+                        exit = document.getElementById(data.exitId),
+                        _room = data.room,
+                        _target = data.tRoom,
+                        _tExit = document.getElementById(data.tExitId);
+                this.el.addEventListener('mousedown', function(evt){
+                    if ( Room !== _target && !isVrMode ) {
+                        Room = _target;
+                        exit.emit('hide');
+                        _tExit.emit('show');
+                        sky.setAttribute( 'src', '#' + _target);
+                        
+                    }
+                });
+            }
+        });
+    </script>
+
+    <a-scene id="scene">
+        <a-assets>
+            <img id="bedroom" src="./assets/bedroom.jpg">
+            <img id="bathroom" src="./assets/bathroom.jpg">
+        </a-assets>
+        <a-sky id="sky" src="#bedroom" radius="20"></a-sky>
+
+        <!-- 电视动画 -->
+        <a-plane watching width="4.02" height="2.4" position="2.02 2.2 -5" rotation="0 -40 0" color="#fff" opacity="0">
+            <a-plane width="3.5" height="2" position="0 0 -0.1" color="#282828" opacity="0">
+                    <a-animation begin="show" end="hide" dur="500" attribute="opacity" from="0" to="1"></a-animation>
+                    <a-animation begin="hide" end="show" dur="1000" attribute="opacity" to="0"></a-animation>
+            
+            
+                <a-text value="Hello World" width="8" align="center" color="#fff" position="0 0 0.01" opacity="0">
+                        <a-animation begin="show" end="hide" delay="500" dur="1000" attribute="opacity" from="0" to="1"></a-animation>
+                        <a-animation begin="animationend" end="hide" delay="1000" dur="500" attribute="opacity" to="0"></a-animation>
+                        <a-animation begin="hide" end="show" dur="1000" attribute="opacity" to="0"></a-animation>
+                        <a-plane position="-1 0.5 0" color="#f56" opacity="0">
+                            <a-animation begin="show" end="hide" delay="2000" dur="1000" attribute="opacity" from="0" to="1"></a-animation>
+                            <a-animation begin="hide" end="show" dur="1000" attribute="opacity" to="0"></a-animation>
+                            <a-text value="Movie" color="#fff" align="center" opacity="0">
+                                <a-animation begin="show" end="hide" delay="2000" dur="1000" attribute="opacity" from="0" to="1"></a-animation>
+                                <a-animation begin="hide" end="show" dur="1000" attribute="opacity" to="0"></a-animation>
+                                <a-plane position="1 0 0" color="#00C5CD" opacity="0">
+                                        <a-animation begin="show" end="hide" delay="2000" dur="1500" attribute="opacity" from="0" to="1"></a-animation>
+                                        <a-animation begin="hide" end="show" dur="1000" attribute="opacity" to="0"></a-animation>
+                                        <a-text value="Music" color="#fff" align="center" opacity="0">
+                                            <a-animation begin="show" end="hide" delay="2500" dur="600" attribute="opacity" from="0" to="1"></a-animation>
+                                            <a-animation begin="hide" end="show" dur="1000" attribute="opacity" to="0"></a-animation>
+                                            <a-plane position="0 -1 0" width="3" color="#1E90FF" opacity="0">
+                                                    <a-animation begin="show" end="hide" delay="2500" dur="800" attribute="opacity" from="0" to="1"></a-animation>
+                                                    <a-animation begin="hide" end="show" dur="1000" attribute="opacity" to="0"></a-animation>
+                                                    <a-text id="TV" value="Photo Album" color="#fff" align="center" opacity="0">
+                                                        <a-animation begin="show" end="hide" delay="2500" dur="1000" attribute="opacity" from="0" to="1"></a-animation>
+                                                        <a-animation begin="hide" end="show" dur="1000" attribute="opacity" to="0"></a-animation>
+                                                    </a-text>
+                                            </a-plane>
+                                        </a-text>
+                                </a-plane>
+                            </a-text>
+                        </a-plane>
+                </a-text>
+
+            </a-plane>
+        </a-plane>
+
+        <!-- 婴儿床触发 -->
+        <a-box cursor-listener="info: Baby, Age: 1, Sex: M, Name: Septem;" position="-8.25 -3 -7.5" width="5" height="2" rotation="90 90 0" color="#fff" opacity="0"></a-box>
+
+         <!-- 时钟触发 -->
+        <a-box cursor-listener="info: Clock, $5, 14:56 ;" position="-0.75 -12 15" width="2.5" height="1.2" color="#fff" opacity="0"></a-box>
+
+        <!-- Exit -->
+        <a-plane hover="room: bedroom; exitId: exit-1;" transfer="room: bedroom; tRoom: bathroom; exitId: exit-1; tExitId: exit-2;" position="4.5 0 15" width="3" rotation="0 180 0" color="#fff" opacity="0">
+            <a-plane position="0 0 -0.1" width="3" color="#00C5CD" opacity="0.5">
+                <a-animation begin="hover" end="hide" dur="1000" attribute="opacity" from="0.5" to="1"></a-animation>
+                <a-animation begin="leave" end="hide" dur="1000" attribute="opacity" from="1" to="0.5"></a-animation>
+                <a-animation begin="show" end="hide" dur="0" attribute="opacity" to="0.5"></a-animation>
+                <a-animation begin="hide" end="show" dur="0" attribute="opacity" to="0"></a-animation>
+                <a-text id='exit-1' value="exit" align="center" width="16" color="#fff" opacity="0.5">
+                    <a-animation begin="hover" end="hide" dur="1000" attribute="opacity" from="0.5" to="1"></a-animation>
+                    <a-animation begin="leave" end="hide" dur="1000" attribute="opacity" from ="1" to="0.5"></a-animation>
+                    <a-animation begin="show" end="hide" dur="0" attribute="opacity" to="0.5"></a-animation>
+                    <a-animation begin="hide" end="show" dur="0" attribute="opacity" to="0"></a-animation>
+                </a-text>
+            </a-plane>   
+        </a-plane>
+
+        <!-- Exit -->
+        <a-plane hover="room: bathroom; exitId: exit-2;" transfer="room: bathroom; tRoom: bedroom; exitId: exit-2; tExitId: exit-1;" position="0 0 -12" width="2.5" rotation="0 0 0" color="#fff" opacity="0">
+            <a-plane position="0 0 -0.1" width="2.5" color="#00C5CD" opacity="0">
+                <a-animation begin="hover" end="hide" dur="1000" attribute="opacity" from="0.5" to="1"></a-animation>
+                <a-animation begin="leave" end="hide" dur="1000" attribute="opacity" from="1" to="0.5"></a-animation>
+                <a-animation begin="show" end="hide" dur="0" attribute="opacity" to="0.5"></a-animation>
+                <a-animation begin="hide" end="show" dur="0" attribute="opacity" to="0"></a-animation>
+                <a-text id='exit-2' value="exit" align="center" width="15" color="#fff" opacity="0">
+                    <a-animation begin="hover" end="hide" dur="1000" attribute="opacity" from="0.5" to="1"></a-animation>
+                    <a-animation begin="leave" end="hide" dur="1000" attribute="opacity" from ="1" to="0.5"></a-animation>
+                    <a-animation begin="show" end="hide" dur="0" attribute="opacity" to="0.5"></a-animation>
+                    <a-animation begin="hide" end="show" dur="0" attribute="opacity" to="0"></a-animation>
+                </a-text>
+            </a-plane>   
+        </a-plane>
+
+
+        <a-entity camera look-controls>
+            <a-entity cursor="fuse: true; fuseTimeout: 1000;"
+                        position="0 0 -1.5"
+                        geometry="primitive: ring; radiusInner: 0.01; radiusOuter: 0.02;"
+                        material="color: #000; opacity: 0;">
+                        <a-entity 
+                            geometry="primitive: plane; width: 1; height: 1;"
+                            material="color: #fff; opacity: 0;"
+                            position="0 0 0.5">
+
+                            <a-entity id = "focus"
+                                geometry="primitive: ring; radiusInner: 0.04; radiusOuter: 0.06;"
+                                material="color: #00C5CD; shader: flat; opacity: 0">
+                                <a-animation begin="show" end="hide" delay="200" dur="2000" attribute="material.opacity" from="0" to="1"></a-animation>
+                                <a-animation begin="show" end="hide" delay="200" dur="2000" attribute="geometry.radiusInner" from="0.04" to="0.001"></a-animation>
+                                <a-animation begin="show" end="hide" delay="200" dur="2000" attribute="geometry.radiusOuter" from="0.06" to="0.01"></a-animation>
+                                <a-animation begin="hide" end="show" delay="0" dur="1000" attribute="material.opacity" to="0"></a-animation>
+                                
+                                <a-entity
+                                    geometry="primitive: ring; radiusInner: 0.02; radiusOuter: 0.025;"
+                                    material="color: #00C5CD; shader: flat; opacity: 0;">
+                                    <a-animation begin="show" end="hide" delay="100" dur="2000" attribute="material.opacity" from="0" to="0.5"></a-animation>
+                                    <a-animation begin="show" end="hide" delay="100" dur="2000" attribute="geometry.radiusInner" from="0.02" to="0"></a-animation>
+                                    <a-animation begin="show" end="hide" delay="100" dur="2000" attribute="geometry.radiusOuter" from="0.025" to="0.01"></a-animation>
+                                    <a-animation begin="hide" end="show" delay="0" dur="1000" attribute="material.opacity" to="0"></a-animation>
+
+                                    
+
+                                    <a-entity line="start: 0, 0, 0; end: -0.1 0.1 0; color: #00C5CD; opacity: 0;"
+                                                line__1="start: -0.1 0.1 0; end: -0.3 0.1 0; color: #00C5CD; opacity: 0;">
+                                            <a-animation begin="show" end="hide" delay="2100" dur="1000" attribute="line.opacity" from="0" to="0.5"></a-animation>
+                                            <a-animation begin="show" end="hide" delay="2200" dur="1000" attribute="line__1.opacity" from="0" to="0.5"></a-animation>
+                                            <a-animation begin="hide" end="show" delay="0" dur="1000" attribute="line.opacity" to="0"></a-animation>
+                                            <a-animation begin="hide" end="show" delay="0" dur="1000" attribute="line__1.opacity" to="0"></a-animation>
+                                            <a-text id="text-1" value="1" width="0.8" align="right" color="#fff" position="-0.3 0.1 0" opacity="0">
+                                                <a-animation begin="show" end="hide" delay="2700" dur="1000" attribute="opacity" from="0" to="1"></a-animation>
+                                                <a-animation begin="hide" end="show" delay="0" dur="1000" attribute="opacity" to="0"></a-animation>
+                                            </a-text>
+                                    </a-entity>
+
+                                    <a-entity line="start: 0, 0, 0; end: -0.1 -0.1 0; color: #00C5CD; opacity: 0;"
+                                                line__1="start: -0.1 -0.1 0; end: -0.2 -0.1 0; color: #00C5CD; opacity: 0;">
+                                            <a-animation begin="show" end="hide" delay="1900" dur="1000" attribute="line.opacity" from="0" to="0.5"></a-animation>
+                                            <a-animation begin="show" end="hide" delay="2000" dur="1000" attribute="line__1.opacity" from="0" to="0.5"></a-animation>
+                                            <a-animation begin="hide" end="show" delay="0" dur="1000" attribute="line.opacity" to="0"></a-animation>
+                                            <a-animation begin="hide" end="show" delay="0" dur="1000" attribute="line__1.opacity" to="0"></a-animation>
+                                            <a-text id="text-2" value="2" width="0.8" align="right" color="#fff" position="-0.2 -0.1 0" opacity="0">
+                                                <a-animation begin="show" end="hide" delay="2700" dur="1000" attribute="opacity" from="0" to="1"></a-animation>
+                                                <a-animation begin="hide" end="show" delay="0" dur="1000" attribute="opacity" to="0"></a-animation>
+                                            </a-text>
+                                    </a-entity>
+
+                                    <a-entity line="start: 0, 0, 0; end: 0.1 0.15 0; color: #00C5CD; opacity: 0;"
+                                                line__1="start: 0.1 0.15 0; end: 0.2 0.15 0; color: #00C5CD; opacity: 0;">
+                                            <a-animation begin="show" end="hide" delay="2300" dur="1000" attribute="line.opacity" from="0" to="0.5"></a-animation>
+                                            <a-animation begin="show" end="hide" delay="2400" dur="1000" attribute="line__1.opacity" from="0" to="0.5"></a-animation>
+                                            <a-animation begin="hide" end="show" delay="0" dur="1000" attribute="line.opacity" to="0"></a-animation>
+                                            <a-animation begin="hide" end="show" delay="0" dur="1000" attribute="line__1.opacity" to="0"></a-animation>
+                                            <a-text id="text-3" value="3" width="0.8" align="left" color="#fff" position="0.2 0.15 0" opacity="0">
+                                                <a-animation begin="show" end="hide" delay="3100" dur="1000" attribute="opacity" from="0" to="1"></a-animation>
+                                                <a-animation begin="hide" end="show" delay="0" dur="1000" attribute="opacity" to="0"></a-animation>
+                                            </a-text>
+                                    </a-entity>
+
+
+                                    <a-entity line="start: 0, 0, 0; end: 0.2 0 0; color: #00C5CD; opacity: 0;">
+                                            <a-animation begin="show" end="hide" delay="2200" dur="1000" attribute="line.opacity" from="0" to="0.5"></a-animation>
+                                            <a-animation begin="hide" end="show" delay="0" dur="1000" attribute="line.opacity" to="0"></a-animation>
+                                            <a-text id="text-4" value="4" width="0.8" align="left" color="#fff" position="0.2 0 0" opacity="0">
+                                                <a-animation begin="show" end="hide" delay="2700" dur="1000" attribute="opacity" from="0" to="1"></a-animation>
+                                                <a-animation begin="hide" end="show" delay="0" dur="1000" attribute="opacity" to="0"></a-animation>
+                                            </a-text>
+                                    </a-entity>
+
+                                    
+
+                                    <a-entity line="start: 0, 0, 0; end: 0.1 -0.1 0; color: #00C5CD; opacity: 0;"
+                                                line__1="start: 0.1 -0.1 0; end: 0.2 -0.1 0; color: #00C5CD; opacity: 0;">
+                                            <a-animation begin="show" end="hide" delay="2000" dur="1000" attribute="line.opacity" from="0" to="0.5"></a-animation>
+                                            <a-animation begin="show" end="hide" delay="2100" dur="1000" attribute="line__1.opacity" from="0" to="0.5"></a-animation>
+                                            <a-animation begin="hide" end="show" delay="0" dur="1000" attribute="line.opacity" to="0"></a-animation>
+                                            <a-animation begin="hide" end="show" delay="0" dur="1000" attribute="line__1.opacity" to="0"></a-animation>
+                                            <a-text id="text-5" value="5" width="0.8" align="left" color="#fff" position="0.2 -0.1 0" opacity="0">
+                                                <a-animation begin="show" end="hide" delay="2600" dur="1000" attribute="opacity" from="0" to="1"></a-animation>
+                                                <a-animation begin="hide" end="show" delay="0" dur="1000" attribute="opacity" to="0"></a-animation>
+                                            </a-text>
+                                    </a-entity>   
+
+                                </a-entity>
+                            </a-entity>
+
+                            
+                        </a-entity>
+            </a-entity>
+        </a-entity>
+    </a-scene>
+
     <script>
         window.onload = function(){
-            // 全局常量 PI
-            const PI = Math.PI,
-                    PI2 = PI * 2;
-            // 视窗宽高常量
-            const WIDTH = window.innerWidth,
-                    HEIGHT = window.innerHeight;
-            // 当前模式: 单个显示 or 多个显示
-            let CurrentMode = 'Single';
-            if ( WIDTH < 1024 ) {
-                CurrentMode = 'Multiple';
-            }
-            // 时间事件
-            const TimeEvent = {
-                timer: null,
-                state: 'circleRun',
-                set: function(o){
-                    this.state = o.state;
-                    this.timer = o.timer;
-                }
-            };
-
-            // 设置隐藏画布配置
-            const canvas_hide = document.getElementById('canvas-hide'),
-                    ctx = canvas_hide.getContext('2d'),
-                    FontSize = 30;
-            ctx.font = FontSize + 'px Arial';
-            ctx.textBaseline = "top";
-            ctx.fillStyle = '#000';
-            
-            // 聚合动画 左上角原点坐标、坐标转换单位长度
-            let TextOrigin = {x: -2, y: 1, z: 0},
-                    ExUnit = 0.01;
-            // 计算文本图像数组
-            let TextPoints = [ 
-                    calcTextArr('Hello World'),
-                    calcTextArr('by Yuyu'),
-                    calcTextArr('2017.9.13')
-                    
-                ];
-            // 多画布模式下修改
-            if ( CurrentMode === "Multiple" ) {
-                TextOrigin = {x: -2, y: 1, z: 0};
-                ExUnit = 0.02;
-                TextPoints = [
-                    calcTextArr('Hello'),
-                    calcTextArr('Yuyu')
-                ]
-            }
-            // 动画执行计数
-            let animateCount = 0;
 
             
-            // 获取展示用画布
-            const canvasList = [];
-            for ( let i = 1; i <= 4; i++ ) {
-                const thisCanvas = document.getElementById('canvas-' + i);
-                canvasList.push( thisCanvas );
-            }
-            // 初始化画布信息
-           
-            const canvas_1 = canvasList[0],
-                    canvas_2 = canvasList[1],
-                    canvas_3 = canvasList[2],
-                    canvas_4 = canvasList[3];
-            let CW = WIDTH * 2,
-                CH = HEIGHT * 2;
-            canvas_1.width = CW;
-            canvas_1.height = CH;
-            canvas_1.style.left = '-50%';
-            canvas_1.style.top = '-50%';
-            if ( CurrentMode === 'Multiple') {
-                // 计算画布宽度 CanvasWidth
-                CW = HEIGHT / 3 * 2;
-                CH = CW * 1.5;
-                if ( HEIGHT > WIDTH ) {
-                    CW = WIDTH / 3 * 2;
-                    CH = CW * 1.5;
-                }
-                // 计算 canvas 位置
-                canvas_1.width = CW;
-                canvas_1.height = CH;
-                canvas_1.style.left = CW * 0.25 + "px";
-                canvas_1.style.top = (HEIGHT - CW * 2.5)  + 'px';
 
-                canvas_2.width = CW;
-                canvas_2.height = CH;
-                canvas_2.style.left = CW * -0.25 + "px";
-                canvas_2.style.top = (HEIGHT - CW * 2) + 'px';
-
-                canvas_3.width = CW;
-                canvas_3.height = CH;
-                canvas_3.style.left = CW * 0.75 + "px";
-                canvas_3.style.top = (HEIGHT - CW * 2) + 'px';
-
-                canvas_4.width = CW;
-                canvas_4.height = CH;
-                canvas_4.style.left = CW * 0.25 + "px"
-                canvas_4.style.top = (HEIGHT - CW * 1.5) + 'px';
-            }
-            
-            
-            
-            
-
-            // 创建 场景 - 相机 - 渲染器
-            const scene = new THREE.Scene();
-            const camera_1 = new THREE.PerspectiveCamera(75, WIDTH / HEIGHT, 1, 1000),
-                    camera_2 = new THREE.PerspectiveCamera(75, WIDTH / HEIGHT, 1, 1000),
-                    camera_3 = new THREE.PerspectiveCamera(75, WIDTH / HEIGHT, 1, 1000),
-                    camera_4 = new THREE.PerspectiveCamera(75, WIDTH / HEIGHT, 1, 1000);
-                    
-            const renderer_1 = new THREE.WebGLRenderer({ canvas: canvas_1 }),
-                    renderer_2 = new THREE.WebGLRenderer({ canvas: canvas_2 }),
-                    renderer_3 = new THREE.WebGLRenderer({ canvas: canvas_3 }),
-                    renderer_4 = new THREE.WebGLRenderer({ canvas: canvas_4 });
-                    
-
-            // 设置相机位置
-            camera_1.position.x = 0;
-            camera_1.position.z = 5;
-            camera_1.position.y = 1;
-            camera_1.lookAt(new THREE.Vector3( 0, 0, 0));
-        
-            camera_2.position.x = -5;
-            camera_2.position.z = 0;
-            camera_2.position.y = 1;
-            camera_2.lookAt(new THREE.Vector3( 0, 0, 0));
-
-            camera_3.position.x = 5;
-            camera_3.position.z = 0;
-            camera_3.position.y = 1;
-            camera_3.lookAt(new THREE.Vector3( 0, 0, 0));
-
-            camera_4.position.x = 0;
-            camera_4.position.z = -5;
-            camera_4.position.y = 1;
-            camera_4.lookAt(new THREE.Vector3( 0, 0, 0));
-
-            // 创建中心球体
-            const geometry = new THREE.SphereGeometry( 1, 16, 16 );
-            const material = new THREE.MeshPhongMaterial( { 
-                    color: '#2194ce',
-                    // emissive: '#000000',
-                    // specular: '#111111',
-                    // side: THREE.DoubleSide,
-                    side: THREE.BackSide,
-                    // shading: THREE.FlatShading,
-                    wireframe: true
-                } );
-            const shpere = new THREE.Mesh( geometry, material );
-            scene.add( shpere );
-
-            // 创建 环境光
-            const ambientLight = new THREE.AmbientLight( 0x000000 );
-                scene.add( ambientLight );
-
-            // 创建 点光源
-            const lights = [];
-                lights[ 0 ] = new THREE.PointLight( 0xffffff, 1, 0 );
-                lights[ 1 ] = new THREE.PointLight( 0xffffff, 1, 0 );
-                lights[ 2 ] = new THREE.PointLight( 0xffffff, 1, 0 );
-                lights[ 3 ] = new THREE.PointLight( 0xffffff, 1, 0 );
-
-            lights[ 0 ].position.set( 0, 100, 0 );
-            lights[ 1 ].position.set( 100, 200, 100 );
-            lights[ 2 ].position.set( - 100, - 200, - 100 );
-            lights[ 3 ].position.set( 50, 50, 50 );
-
-            scene.add( lights[ 0 ] );
-            scene.add( lights[ 1 ] );
-            scene.add( lights[ 2 ] );
-            scene.add( lights[ 3 ] );
-
-           
-
-            // 创建数据颗粒
-            const items = [],
-                itemNum = CurrentMode === 'Multiple' ? 600 : 1500,
-                itemSize =  CurrentMode === 'Multiple' ? 0.015 : 0.002,
-                itemDistance = PI2 / itemNum;
-            const R = 1.25,
-                    V = 0.01;
-
-            for (let i = 0; i < itemNum; i ++) {
-                // 创建颗粒几何
-                const _geometry = new THREE.SphereGeometry( itemSize + Math.random() * 0.02, 1, 1 );
-                // 创建颗粒材质
-                const _material = new THREE.MeshPhongMaterial( { 
-                    color: '#156289',
-                    emissive: '#072534',
-                    // side: THREE.DoubleSide,
-                    // shading: THREE.FlatShading,
-                    // wireframe: true
-                } );
-                // 创建颗粒网格
-                const _item = new THREE.Mesh( _geometry, _material );
-                // 初始化小球信息数据
-                let _currentDegH = i * itemDistance,    // 水平角度：用于延轨道移动
-                    _currentDegV = PI2 * Math.random() - PI;    // 垂直角度：用于 sin函数 控制模型起伏
-                    _R = R + Math.random() * 0.75,  // 私有轨道半径
-                    _V = V + Math.random() * 0.25,  // 私有高度范围
-                    _pX = Math.cos( _currentDegH ) * _R,    // x 位置
-                    _pZ = Math.sin( _currentDegH ) * _R,    // z 位置
-                    _pY = Math.sin( _currentDegV ) * _V;    // y 位置
-                // 设置该模型位置
-                _item.position.set( _pX, _pY, _pZ );
-                _item.lookAt(new THREE.Vector3( 0, 1, 5));
-                // 记录该模型数据
-                _item._info = {
-                    _currentDegH,
-                    _currentDegV,
-                    _R,
-                    _V,
-                    _pX,
-                    _pZ,
-                    _pY,
-                };
-                // 将模型添加到 场景 中
-                scene.add( _item );
-                // 添加到模型数组中 用作之后控制
-                items.push(_item);
-            }
-
-            // 开始渲染
-            render();
-
-
-            // -----------每一帧执行渲染动画----------------
-            function render() {
-                //  执行动画
-                mainAnimate();
-                // 中心球体自转
-                shpere.rotation.y -= 0.005;
-                // 渲染场景
-                if ( CurrentMode === 'Multiple'){
-                    renderer_1.render( scene, camera_1 );
-                    renderer_2.render( scene, camera_2 );
-                    renderer_3.render( scene, camera_3 );
-                    renderer_4.render( scene, camera_4 );
+            const scene = document.querySelector('#scene');
+            scene.addEventListener('loaded', function(evt){  
+            });       
+            scene.addEventListener('enter-vr', function(evt){
+                const exit_1 = document.getElementById('exit-1'),
+                        exit_2 = document.getElementById('exit-2');
+                isVrMode = true;
+                exit_1.emit('hide');
+                exit_2.emit('hide');
+            });
+            scene.addEventListener('exit-vr', function(evt){   
+                const exit_1 = document.getElementById('exit-1'),
+                        exit_2 = document.getElementById('exit-2');
+                isVrMode = false;
+                if ( Room === 'bedroom' ) {
+                    exit_1.emit('show');
                 } else {
-                    renderer_1.render( scene, camera_1 );
+                    exit_2.emit('show');
                 }
-                // 每一帧执行动画
-                requestAnimationFrame( render );
-            }
-
-            // --------------圆周运动------------------
-            function circleRun( _thisItem ){
-                // 取出 水平角、垂直角、私有轨道半径、私有垂直偏移
-                let { _currentDegH, _currentDegV, _R, _V } = _thisItem._info;
-
-                    // 水平角、垂直角 增加
-                    _currentDegH += 0.001;
-                    _currentDegV += Math.random() * 0.015;
-                    // 判断 角度超出周期 回到起点
-                    (_currentDegH > PI2 - itemDistance) && (_currentDegH = 0);
-                    (_currentDegV > PI - itemDistance) && (_currentDegV = -PI);
-
-                // 计算新的 x, y, z 坐标值
-                const _pX = Math.cos( _currentDegH ) * _R,
-                    _pZ = Math.sin( _currentDegH ) * _R,
-                    _pY = Math.sin( _currentDegV ) * _V;
-
-                // 重新记录新的数据信息
-                _thisItem._info = {
-                    _currentDegH,
-                    _currentDegV,
-                    _R,
-                    _V,
-                    _pX,
-                    _pZ,
-                    _pY,
-                };
-                // 返回当前圆周轨迹上的坐标值
-                return { _pX, _pY, _pZ };
-            }
-
-            // -----------------移出动画----------------------
-            function moveOut( _thisItem ){
-                let isFinished = false;
-                const { _targetInfo } = _thisItem;
-
-                // 获取当前位置
-                let { _cX, _cY, _cZ } = _targetInfo;
-                // 获取贝塞尔曲线上的4个点、移动速度
-                const { p0, p1, p2, p3, speed } = _targetInfo._animate.bezier;
-                // 获取贝塞尔曲线方程当前系数 t   
-                let { t } = _targetInfo._animate.bezier;
-
-                // 获取该颗粒 聚集动画中的垂直角度 进行增长
-                let { _degV } = _targetInfo._animate;
-                    _degV += 0.005;
-                    (_degV >= PI) && (_degV = -PI);
-                // 计算 y轴上浮动值
-                const _yFloat = Math.sin( _degV ) * 0.4;
-                _targetInfo._animate._degV = _degV;
-
-                if ( t < 1 ) {
-                    // 曲线上的系数增长
-                    t += speed;
-                    ( t > 1 ) && ( t = 1 );
-                    let { x, y, z } = calcPosition( t, p0, p1, p2, p3 );
-                    _thisItem.position.set( x, y + _yFloat, z );
-
-                    // 将改变后的坐标值，和曲线当前系数 t
-                    _targetInfo._cX = x;
-                    _targetInfo._cY = y;
-                    _targetInfo._cZ = z;
-                    _targetInfo._animate.bezier.t = t;
-                } else {
-                    // 若已完成曲线运动，移动到当前浮动位置
-                    _thisItem.position.set( _cX, _cY + _yFloat, _cZ );
-                    // 记录该颗粒已完成移动
-                    isFinished = true;
-                }
-                return isFinished;
-            }
-
-            // -----------------移入动画----------------------
-            function moveIn( _thisItem ){
-                let isFinished = false;
-                const { _info, _targetInfo } = _thisItem;
-
-                     // 获取当前位置
-                    let { _cX, _cY, _cZ } = _targetInfo;
-                    // 获取贝塞尔曲线上的4个点、移动速度
-                    const { p0, p1, p2, speed } = _targetInfo._animate.bezier,
-                            { _pX, _pY, _pZ} = _info,
-                            p3 = {x: _pX, y: _pY, z: _pZ };
-                    // 获取贝塞尔曲线方程当前系数 t   
-                    let { t } = _targetInfo._animate.bezier;
-
-                    if ( t < 1 ) {
-                        // 曲线上的系数增长
-                        t += speed;
-                        ( t > 1 ) && ( t = 1 );
-                        let { x, y, z } = calcPosition( t, p0, p1, p2, p3 );
-                        _thisItem.position.set( x, y, z );
-
-                        // 将改变后的坐标值，和曲线当前系数 t
-                        _targetInfo._cX = x;
-                        _targetInfo._cY = y;
-                        _targetInfo._cZ = z;
-                        _targetInfo._animate.bezier.t = t;
-                    } else {
-                        // 若已完成曲线运动，移动到当前浮动位置
-                        _thisItem.position.set( _cX, _cY, _cZ );
-                        // 记录该颗粒已完成移动
-                        _thisItem._targetInfo = null;
-                        isFinished = true;
-                    }
-                    return isFinished;  
-            }
-            
-            // ----------------动画-----------------------
-            function mainAnimate(){
-                // 初始未完成动画数量
-                let unfinished = 0;
-                for(let i = 0, len = items.length; i < len; i++){
-                    const _thisItem = items[i],
-                            { _targetInfo } = _thisItem;
-
-                    // 所有颗粒持续做圆周运动
-                    const { _pX, _pY, _pZ } = circleRun( _thisItem );   
-
-                    // 时间事件中 当前状态
-                    switch (TimeEvent.state) {
-                        case 'moveOut':
-                            // 判断该模型是否有目标信息
-                            if ( _targetInfo ) {
-                                // 执行移动动画 并记录未完成颗粒数
-                                ( !moveOut( _thisItem ) ) && ( unfinished++ );
-                                continue;
-                            }
-                            break;
-                            
-                        case 'moveIn':
-                            // 判断该模型是否有目标信息
-                            if ( _targetInfo ) {
-                                // 执行移入
-                                ( !moveIn( _thisItem ) ) && ( unfinished++ );
-                                continue;
-                            }
-                            break;
-
-                        case 'circleRun':
-
-                            break;
-                    }
-                    // 将该模型移动到圆周轨道上的新坐标
-                    _thisItem.position.set( _pX, _pY, _pZ );
-                }
-                checkTimeEvent( unfinished );             
-            }
-
-            function checkTimeEvent( unfinished ){
-                if ( !TimeEvent.timer ) {
-                    if ( TimeEvent.state === 'circleRun' ) {
-                         // 设置动画时间定时器
-                        TimeEvent.timer = setTimeout( function(){
-                            // 参照视图数组 计算 颗粒模型的目标位置
-                            calcItemTarget( TextPoints[ animateCount % TextPoints.length ] );
-                            // 设置时间事件状态
-                            TimeEvent.set({
-                                state: 'moveOut',
-                                timer: null
-                            });
-                        }, 5000);
-                    } else if ( TimeEvent.state === 'moveOut' && unfinished === 0 ) {     // 若所有点全部执行完移出动画
-                        // 设置动画时间定时器
-                        TimeEvent.timer = setTimeout( function(){
-                            // 计算颗粒模型 当前点 到轨道中位置的数据
-                            calcItemOrigin( TextPoints[ animateCount % TextPoints.length ] );
-                            // 设置时间事件状态
-                            TimeEvent.set({
-                                state: 'moveIn',
-                                timer: null
-                            });
-                        }, 5000);
-                    } else if ( TimeEvent.state === 'moveIn' && unfinished === 0 ) {
-                        // 设置动画时间定时器
-                        TimeEvent.timer = setTimeout( function(){
-                             // 设置时间事件状态
-                            TimeEvent.set({
-                                state: 'circleRun',
-                                timer: null
-                            });
-                            animateCount ++;
-                        }, 2000 * Math.random());
-                    }
-                }
-            }
-
-
-
-            // ----------------计算文本视图数组------------------
-            function calcTextArr( txt ){
-                if(!txt){return false;}
-
-                // 绘制文字
-                ctx.fillText( txt, 0, 0 );
-                
-                // 计算文本边沿
-                const colLen = Math.ceil( ctx.measureText(txt).width ),
-                        rowLen = Math.ceil( FontSize * 1.1 );
-
-                // 创建 point 数组
-                const points = [];
-
-                // 获取画布数据
-                const imgData = ctx.getImageData(0, 0, colLen, rowLen).data;
-
-                // 循环创建 文本视图数组
-                for ( let i = 0; i < rowLen; i++ ) {
-                    for ( let j = 0; j < colLen; j++ ) {
-                        // 该像素点透明度：每个像素点包含 3 通道色值 和 透明度，所以使用:( i * colLen + j ) * 4 + 3 取 透明度
-                        const alpha = imgData[ ( i * colLen + j ) * 4 + 3 ];
-                        if( alpha >= 100 ){     // 透明度设置 阈值 处理文字毛边
-                            points.push({
-                                x: j * ExUnit,
-                                y: -i * ExUnit,
-                                z: 0
-                            });
-                        }
-                    }
-                }
-                // 清除画布
-                ctx.clearRect( 0, 0, canvas_hide.width, canvas_hide.height );
-
-                // 返回计算后的结果数组
-                return points;
-            }
-
-            // ------------计算 模型 目标位置坐标------------------
-            function calcItemTarget( points ){
-                // 获取 颗粒聚合处原点 坐标值
-                const _oX = TextOrigin.x,
-                        _oY = TextOrigin.y,
-                        _oZ = TextOrigin.z;
-                // 获取 目标点数量、当前模型数量
-                const pointNum = points.length,
-                        itemNum = items.length;
-                // // 因为要体现 z 轴上空间感，实际 三维空间 中需要的点数是 二维图像 的整倍数
-                // const _pNum = pointNum * 3;
-
-
-                for(let i = 0; i < pointNum; i++){
-                    const _thisItem = items[i];
-
-                    // if ( _thisItem ) {
-                        const { x, y, z } = points[i],  // 目标点位置
-                                { _pX, _pZ, _pY } = _thisItem._info;    // 当前模型坐标
-
-                        const _step = 100 + Math.random() * 500;   // 随机生成移动到目标位置的步数
-
-                        const p0 = { x: _pX, y: _pY, z: _pZ},   // 起始点
-                                p3 = { x: _oX + x, y: _oY + y, z: _oZ + z}, // 结束点
-                                { p1, p2 } = randomControlP( p0, p3 );  // 控制点     
-
-                        // 设置模型目标信息
-                        _thisItem._targetInfo = {
-                            _cX: _pX, // 初始化当前位置 x, y, z
-                            _cY: _pY,
-                            _cZ: _pZ,
-                            _animate: {
-                                bezier: {
-                                    p0,  // 起始点
-                                    p1,  // 控制点 1
-                                    p2,  // 控制点 2
-                                    p3,  // 结束点
-                                    t: 0,
-                                    speed: 1 / _step
-                                },
-                                _degV: -PI,
-                            }
-                        }
-                    // } 
-                    // else {
-                    //     // 清空模型目标信息
-                    //     _thisItem._targetInfo = null;
-                    // } 
-
-                }
-
-            }
-
-            // ------------计算 模型 轨道位置坐标------------------
-            function calcItemOrigin( points ){
-
-                for(let i = 0, len = points.length; i < len; i++){
-                    const _thisItem = items[i],
-                            { _info, _targetInfo } = _thisItem;
-
-                    const _step = 200 + Math.random() * 500;   // 随机生成移动到目标位置的步数
-                    
-                    // 获取初始位置
-                    const { x, y, z } = _thisItem.position,
-                            p0 = { x, y, z },
-                            { _pX, _pY, _pZ } = _info,
-                            p3 = { x: _pX, y: _pY, z: _pZ },
-                            { p1, p2 } = randomControlP( p0, {x: -TextOrigin.x, y: -TextOrigin.y, z: 0 } );  // 控制点  
-                    // 设置模型目标信息
-                    _thisItem._targetInfo = {
-                        _cX: x, // 初始化当前位置 x, y, z
-                        _cY: y,
-                        _cZ: z,
-                        _animate: {
-                            bezier: {
-                                p0,  // 起始点
-                                p1,  // 控制点 1
-                                p2,  // 控制点 2
-                                p3,  // 结束点
-                                t: 0,
-                                speed: 1 / _step
-                            },
-                            _degV: -PI,
-                        },
-                    }
-                }
-                
-            }
-
-            // ------------随机贝塞尔曲线上的控制点---------------
-            function randomControlP( p0, p3 ){
-                // 求 起始点 到 结束点 的向量
-                const _vector = { x: p3.x - p0.x, y: p3.y - p0.y, z: p3.z - p0.z },
-                        { x, y, z } = _vector;
-
-                function r1( val ){
-                    return val * ( Math.random() - 1 );
-                }
-                function r2(val){
-                    return val * ( Math.random() + 1 );
-                }
-                return {
-                    p1: { x: r1(x), y: r1(y), z: r1(z)},
-                    p2: { x: r2(x), y: r2(y), z: r2(z)}
-                };
-            }
-
-            // ------------运用 贝塞尔曲线三次方公式 计算点在空间中的坐标---------------
-            function calcPosition( t, p0, p1, p2, p3){
-                return {
-                    x: p0.x * Math.pow( 1 - t, 3) + 3 * p1.x * t * Math.pow( 1 - t, 2) + 3 * p2.x * Math.pow( t, 2) * ( 1 - t) + p3.x * Math.pow( t, 3),
-                    y: p0.y * Math.pow( 1 - t, 3) + 3 * p1.y * t * Math.pow( 1 - t, 2) + 3 * p2.y * Math.pow( t, 2) * ( 1 - t) + p3.y * Math.pow( t, 3),
-                    z: p0.z * Math.pow( 1 - t, 3) + 3 * p1.z * t * Math.pow( 1 - t, 2) + 3 * p2.z * Math.pow( t, 2) * ( 1 - t) + p3.z * Math.pow( t, 3),
-                }
-            }
+            });
 
         }
-        
     </script>
+
 </body>
 </html>
