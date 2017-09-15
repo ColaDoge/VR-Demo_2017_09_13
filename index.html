@@ -198,7 +198,7 @@
             <a-entity cursor="fuse: true; fuseTimeout: 1000;"
                         position="0 0 -1.5"
                         geometry="primitive: ring; radiusInner: 0.01; radiusOuter: 0.02;"
-                        material="color: #000; opacity: 0;">
+                        material="color: #fff; opacity: 0;">
                         <a-entity 
                             geometry="primitive: plane; width: 1; height: 1;"
                             material="color: #fff; opacity: 0;"
@@ -207,64 +207,64 @@
                             <a-entity id = "focus"
                                 geometry="primitive: ring; radiusInner: 0.04; radiusOuter: 0.06;"
                                 material="color: #00C5CD; shader: flat; opacity: 0">
-                                <a-animation begin="show" end="hide" delay="200" dur="2000" attribute="material.opacity" from="0" to="1"></a-animation>
-                                <a-animation begin="show" end="hide" delay="200" dur="2000" attribute="geometry.radiusInner" from="0.04" to="0.001"></a-animation>
-                                <a-animation begin="show" end="hide" delay="200" dur="2000" attribute="geometry.radiusOuter" from="0.06" to="0.01"></a-animation>
+                                <a-animation begin="show" end="hide" delay="100" dur="1500" attribute="material.opacity" from="0" to="1"></a-animation>
+                                <a-animation begin="show" end="hide" delay="100" dur="1500" attribute="geometry.radiusInner" from="0.04" to="0.001"></a-animation>
+                                <a-animation begin="show" end="hide" delay="100" dur="1500" attribute="geometry.radiusOuter" from="0.06" to="0.01"></a-animation>
                                 <a-animation begin="hide" end="show" delay="0" dur="1000" attribute="material.opacity" to="0"></a-animation>
                                 
                                 <a-entity
                                     geometry="primitive: ring; radiusInner: 0.02; radiusOuter: 0.025;"
                                     material="color: #00C5CD; shader: flat; opacity: 0;">
-                                    <a-animation begin="show" end="hide" delay="100" dur="2000" attribute="material.opacity" from="0" to="0.5"></a-animation>
-                                    <a-animation begin="show" end="hide" delay="100" dur="2000" attribute="geometry.radiusInner" from="0.02" to="0"></a-animation>
-                                    <a-animation begin="show" end="hide" delay="100" dur="2000" attribute="geometry.radiusOuter" from="0.025" to="0.01"></a-animation>
+                                    <a-animation begin="show" end="hide" delay="100" dur="1500" attribute="material.opacity" from="0" to="0.5"></a-animation>
+                                    <a-animation begin="show" end="hide" delay="100" dur="1500" attribute="geometry.radiusInner" from="0.02" to="0"></a-animation>
+                                    <a-animation begin="show" end="hide" delay="100" dur="1500" attribute="geometry.radiusOuter" from="0.025" to="0.01"></a-animation>
                                     <a-animation begin="hide" end="show" delay="0" dur="1000" attribute="material.opacity" to="0"></a-animation>
 
                                     
 
                                     <a-entity line="start: 0, 0, 0; end: -0.1 0.1 0; color: #00C5CD; opacity: 0;"
                                                 line__1="start: -0.1 0.1 0; end: -0.3 0.1 0; color: #00C5CD; opacity: 0;">
-                                            <a-animation begin="show" end="hide" delay="2100" dur="1000" attribute="line.opacity" from="0" to="0.5"></a-animation>
-                                            <a-animation begin="show" end="hide" delay="2200" dur="1000" attribute="line__1.opacity" from="0" to="0.5"></a-animation>
-                                            <a-animation begin="hide" end="show" delay="0" dur="1000" attribute="line.opacity" to="0"></a-animation>
-                                            <a-animation begin="hide" end="show" delay="0" dur="1000" attribute="line__1.opacity" to="0"></a-animation>
+                                            <a-animation begin="show" end="hide" delay="1100" dur="500" attribute="line.opacity" from="0" to="0.5"></a-animation>
+                                            <a-animation begin="show" end="hide" delay="1200" dur="500" attribute="line__1.opacity" from="0" to="0.5"></a-animation>
+                                            <a-animation begin="hide" end="show" delay="0" dur="500" attribute="line.opacity" to="0"></a-animation>
+                                            <a-animation begin="hide" end="show" delay="0" dur="500" attribute="line__1.opacity" to="0"></a-animation>
                                             <a-text id="text-1" value="1" width="0.8" align="right" color="#fff" position="-0.3 0.1 0" opacity="0">
-                                                <a-animation begin="show" end="hide" delay="2700" dur="1000" attribute="opacity" from="0" to="1"></a-animation>
-                                                <a-animation begin="hide" end="show" delay="0" dur="1000" attribute="opacity" to="0"></a-animation>
+                                                <a-animation begin="show" end="hide" delay="1700" dur="800" attribute="opacity" from="0" to="1"></a-animation>
+                                                <a-animation begin="hide" end="show" delay="0" dur="800" attribute="opacity" to="0"></a-animation>
                                             </a-text>
                                     </a-entity>
 
                                     <a-entity line="start: 0, 0, 0; end: -0.1 -0.1 0; color: #00C5CD; opacity: 0;"
                                                 line__1="start: -0.1 -0.1 0; end: -0.2 -0.1 0; color: #00C5CD; opacity: 0;">
-                                            <a-animation begin="show" end="hide" delay="1900" dur="1000" attribute="line.opacity" from="0" to="0.5"></a-animation>
-                                            <a-animation begin="show" end="hide" delay="2000" dur="1000" attribute="line__1.opacity" from="0" to="0.5"></a-animation>
-                                            <a-animation begin="hide" end="show" delay="0" dur="1000" attribute="line.opacity" to="0"></a-animation>
-                                            <a-animation begin="hide" end="show" delay="0" dur="1000" attribute="line__1.opacity" to="0"></a-animation>
+                                            <a-animation begin="show" end="hide" delay="900" dur="500" attribute="line.opacity" from="0" to="0.5"></a-animation>
+                                            <a-animation begin="show" end="hide" delay="1000" dur="500" attribute="line__1.opacity" from="0" to="0.5"></a-animation>
+                                            <a-animation begin="hide" end="show" delay="0" dur="500" attribute="line.opacity" to="0"></a-animation>
+                                            <a-animation begin="hide" end="show" delay="0" dur="500" attribute="line__1.opacity" to="0"></a-animation>
                                             <a-text id="text-2" value="2" width="0.8" align="right" color="#fff" position="-0.2 -0.1 0" opacity="0">
-                                                <a-animation begin="show" end="hide" delay="2700" dur="1000" attribute="opacity" from="0" to="1"></a-animation>
-                                                <a-animation begin="hide" end="show" delay="0" dur="1000" attribute="opacity" to="0"></a-animation>
+                                                <a-animation begin="show" end="hide" delay="2000" dur="800" attribute="opacity" from="0" to="1"></a-animation>
+                                                <a-animation begin="hide" end="show" delay="0" dur="800" attribute="opacity" to="0"></a-animation>
                                             </a-text>
                                     </a-entity>
 
                                     <a-entity line="start: 0, 0, 0; end: 0.1 0.15 0; color: #00C5CD; opacity: 0;"
                                                 line__1="start: 0.1 0.15 0; end: 0.2 0.15 0; color: #00C5CD; opacity: 0;">
-                                            <a-animation begin="show" end="hide" delay="2300" dur="1000" attribute="line.opacity" from="0" to="0.5"></a-animation>
-                                            <a-animation begin="show" end="hide" delay="2400" dur="1000" attribute="line__1.opacity" from="0" to="0.5"></a-animation>
-                                            <a-animation begin="hide" end="show" delay="0" dur="1000" attribute="line.opacity" to="0"></a-animation>
-                                            <a-animation begin="hide" end="show" delay="0" dur="1000" attribute="line__1.opacity" to="0"></a-animation>
+                                            <a-animation begin="show" end="hide" delay="1300" dur="500" attribute="line.opacity" from="0" to="0.5"></a-animation>
+                                            <a-animation begin="show" end="hide" delay="1400" dur="500" attribute="line__1.opacity" from="0" to="0.5"></a-animation>
+                                            <a-animation begin="hide" end="show" delay="0" dur="500" attribute="line.opacity" to="0"></a-animation>
+                                            <a-animation begin="hide" end="show" delay="0" dur="500" attribute="line__1.opacity" to="0"></a-animation>
                                             <a-text id="text-3" value="3" width="0.8" align="left" color="#fff" position="0.2 0.15 0" opacity="0">
-                                                <a-animation begin="show" end="hide" delay="3100" dur="1000" attribute="opacity" from="0" to="1"></a-animation>
-                                                <a-animation begin="hide" end="show" delay="0" dur="1000" attribute="opacity" to="0"></a-animation>
+                                                <a-animation begin="show" end="hide" delay="1800" dur="800" attribute="opacity" from="0" to="1"></a-animation>
+                                                <a-animation begin="hide" end="show" delay="0" dur="800" attribute="opacity" to="0"></a-animation>
                                             </a-text>
                                     </a-entity>
 
 
                                     <a-entity line="start: 0, 0, 0; end: 0.2 0 0; color: #00C5CD; opacity: 0;">
-                                            <a-animation begin="show" end="hide" delay="2200" dur="1000" attribute="line.opacity" from="0" to="0.5"></a-animation>
-                                            <a-animation begin="hide" end="show" delay="0" dur="1000" attribute="line.opacity" to="0"></a-animation>
+                                            <a-animation begin="show" end="hide" delay="1200" dur="500" attribute="line.opacity" from="0" to="0.5"></a-animation>
+                                            <a-animation begin="hide" end="show" delay="0" dur="500" attribute="line.opacity" to="0"></a-animation>
                                             <a-text id="text-4" value="4" width="0.8" align="left" color="#fff" position="0.2 0 0" opacity="0">
-                                                <a-animation begin="show" end="hide" delay="2700" dur="1000" attribute="opacity" from="0" to="1"></a-animation>
-                                                <a-animation begin="hide" end="show" delay="0" dur="1000" attribute="opacity" to="0"></a-animation>
+                                                <a-animation begin="show" end="hide" delay="1600" dur="800" attribute="opacity" from="0" to="1"></a-animation>
+                                                <a-animation begin="hide" end="show" delay="0" dur="800" attribute="opacity" to="0"></a-animation>
                                             </a-text>
                                     </a-entity>
 
@@ -272,13 +272,13 @@
 
                                     <a-entity line="start: 0, 0, 0; end: 0.1 -0.1 0; color: #00C5CD; opacity: 0;"
                                                 line__1="start: 0.1 -0.1 0; end: 0.2 -0.1 0; color: #00C5CD; opacity: 0;">
-                                            <a-animation begin="show" end="hide" delay="2000" dur="1000" attribute="line.opacity" from="0" to="0.5"></a-animation>
-                                            <a-animation begin="show" end="hide" delay="2100" dur="1000" attribute="line__1.opacity" from="0" to="0.5"></a-animation>
-                                            <a-animation begin="hide" end="show" delay="0" dur="1000" attribute="line.opacity" to="0"></a-animation>
-                                            <a-animation begin="hide" end="show" delay="0" dur="1000" attribute="line__1.opacity" to="0"></a-animation>
+                                            <a-animation begin="show" end="hide" delay="1500" dur="500" attribute="line.opacity" from="0" to="0.5"></a-animation>
+                                            <a-animation begin="show" end="hide" delay="1600" dur="500" attribute="line__1.opacity" from="0" to="0.5"></a-animation>
+                                            <a-animation begin="hide" end="show" delay="0" dur="500" attribute="line.opacity" to="0"></a-animation>
+                                            <a-animation begin="hide" end="show" delay="0" dur="500" attribute="line__1.opacity" to="0"></a-animation>
                                             <a-text id="text-5" value="5" width="0.8" align="left" color="#fff" position="0.2 -0.1 0" opacity="0">
-                                                <a-animation begin="show" end="hide" delay="2600" dur="1000" attribute="opacity" from="0" to="1"></a-animation>
-                                                <a-animation begin="hide" end="show" delay="0" dur="1000" attribute="opacity" to="0"></a-animation>
+                                                <a-animation begin="show" end="hide" delay="1900" dur="500" attribute="opacity" from="0" to="1"></a-animation>
+                                                <a-animation begin="hide" end="show" delay="0" dur="500" attribute="opacity" to="0"></a-animation>
                                             </a-text>
                                     </a-entity>   
 
